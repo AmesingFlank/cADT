@@ -3,28 +3,50 @@
 
 using namespace std;
 
-NEW_TYPE(Expr) {
-        NEW_PATTERN(Add, int);
+NEW_TYPE(Expr)
+    NEW_PATTERN(Num, int);
+    NEW_PATTERN(Add,Expr,Expr)
 };
 
-template <typename T>
-NEW_TYPE(Option){
-        NEW_PATTERN(Maybe,T);
-        NEW_PATTERN(None);
+
+int evaluate (Expr e){
+    MATCH(e,Num,i){
+        return i;
+    }
+    MATCH(e,Add,e1,e2){
+        return evaluate(e1)+evaluate(e2);
+    }
+}
+
+class D{
+
 };
+
+class C{
+public:
+    C (const D& d){
+
+    }
+
+    C(int i, const C& c...){
+
+    }
+};
+
+
 
 
 int main() {
-    Option<int> a;
-    a = PATTERN(Maybe,0);
+    Expr e1 = PATTERN(Num, 1);
+    Expr e2 = PATTERN(Num, 2);
+    Expr e3 = PATTERN(Add, e1, e2);
+    //Expr e = PATTERN(Add, Expr(PATTERN(Num, 1)),Expr(PATTERN(Num, 1)));
+    //cout<<evaluate(e)<<endl;
 
-    MATCH(a,None){
-        cout<<"None"<<endl;
-    }
-    MATCH(a,Maybe,i){
-        cout<<i<<endl;
-    }
-
+    D d;
+    C c(1,d,d);
     cout<<"exit main"<<endl;
+
+
     return 0;
 }

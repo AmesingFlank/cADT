@@ -19,15 +19,21 @@ template <typename ...Ts>
 class ADT_Pattern: public ADT_Pattern_Base{
 public:
     std::string constructorName;
-    std::tuple<Ts...> values_tuple;
+    std::tuple<Ts...>* values_tuple = nullptr;
     ADT_Pattern(int useless, const std::string& name):constructorName(name){
 
     }
 
     ADT_Pattern(const std::string& name,const Ts&... vals):constructorName(name){
-        values_tuple = std::make_tuple(vals...);
+        values_tuple = new std::tuple<Ts...>(std::make_tuple(vals...) );
     }
 
+
+    ~ADT_Pattern(){
+        if(values_tuple) {
+            //delete values_tuple;
+        }
+    }
 };
 
 class ADT_Base{
@@ -37,7 +43,28 @@ public:
 
 
 #define NEW_TYPE(T) \
-class T:public ADT_Base
+class T:public ADT_Base \
+{ \
+public: \
+template <typename ...Ts> \
+T(const ADT_Pattern<Ts...>& input) { \
+    unsigned char* startPointer_uchar = (unsigned char*) this + sizeof(possible_patterns); \
+    unsigned char* endPointer_uchar = (unsigned char*) this + sizeof(*this); \
+    ADT_Pattern<Ts...>* startPointer = (ADT_Pattern<Ts...>*) startPointer_uchar; \
+    ADT_Pattern<Ts...>* endPointer = (ADT_Pattern<Ts...>*) endPointer_uchar; \
+    bool assigned = false; \
+    for(ADT_Pattern<Ts...>* pointer = startPointer; pointer < endPointer; ++ pointer){ \
+        if (pointer->constructorName == input.constructorName){ \
+            (*pointer) = input; \
+            assigned = true; \
+            break; \
+        } \
+    }\
+    if (!assigned) {\
+        std::cerr <<"type error: Wrong Constructor/Arguments at "<<__LINE__<<endl; \
+    }\
+} \
+
 
 
 #define NEW_PATTERN(Cons,...) \
@@ -54,10 +81,10 @@ void operator= (const ADT_Pattern<__VA_ARGS__>& input){ \
 
 
 #define PATTERN(Cons,...) \
-ADT_Pattern<decltype(__VA_ARGS__)>(#Cons,__VA_ARGS__);
+ADT_Pattern<decltype(__VA_ARGS__)>(#Cons,__VA_ARGS__)
 
 #define MATCH(T,Cons,...) \
-auto& [__VA_ARGS__] = T.Cons.values_tuple; \
+auto& [__VA_ARGS__] = *T.Cons.values_tuple; \
 if(T.Cons.used)
 
 #endif //CADT_CADT_H

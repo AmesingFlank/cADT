@@ -1,7 +1,7 @@
 # cADT
 Haskell Style ADT/Pattern-Matching for C++
 
-(Ok, hold on, not working right now.)
+(Oops, hold on, not working right now.)
 
 # Installation
 This is a header-only library. Simply #include "cADT.h" will do.

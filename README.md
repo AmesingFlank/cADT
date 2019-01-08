@@ -58,3 +58,8 @@ int main() {
     return 0;
 }
 ```
+
+IMPORTANT NOTE: <br />
+As a limitation of the magical powers employed to implement this awesome syntax, the following rules must be obeyed: <br />
+* the first NEW_PATTERN of an ADT must be at the line exactly below the NEW_TYPE declaration of this ADT
+* starting from the second one, each NEW_PATTERN must be declared at exactly the line below the previous NEW_PATTERN of the same ADT

@@ -1,7 +1,7 @@
 # cADT
 Haskell Style ADT/Pattern-Matching for C++
 
-(Oops, hold on, not working right now.)
+(Oops, hold on, have memory leaks right now)
 
 # Installation
 This is a header-only library. Simply #include "cADT.h" will do.
@@ -19,17 +19,17 @@ Evaluate (Add e1 e2) = Evaluate e1 + Evaluate e2
 
 The equivalent C++ code using cADT is:
 ```C++
-NEW_TYPE(Expr){
-    NEW_PATTERN(Num, int);
+NEW_TYPE(Expr)
+    NEW_PATTERN(Num,int)
     NEW_PATTERN(Add,Expr,Expr)
-};
+END_TYPE;
 
-int evaluate (Expr e){
-    MATCH(e,Num,i){
+int evaluate(Expr e){
+    MATCH(e, Num,i)
         return i;
-    }
-    MATCH(e,Add,e1,e2){
+    END
+    MATCH(e,Add,e1,e2)
         return evaluate(e1)+evaluate(e2);
-    }
+    END
 }
 ```

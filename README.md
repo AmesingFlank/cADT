@@ -7,8 +7,8 @@ Also Extremely useful when writing compilers...
 (but will be entirely useless after C++ supports lvariant... )
 
 # Installation
-This is a header-only library. Simply #include "cADT.h" will do.
-Must be compiled with C++17 or C++1z  
+This is a header-only library. Simply #include "cADT.h" will do.  
+Must be compiled with C++17 or C++1z
 
 # Usage
 Consider the following Haskell code:

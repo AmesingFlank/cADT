@@ -51,10 +51,6 @@ auto transform_each(const std::tuple<Args...>& t, F f) {
             t, f, std::make_index_sequence<sizeof...(Args)>{});
 }
 
-template <typename... Args>
-struct TupleOfPointers{
-    typedef std::tuple<Args*...> type;
-};
 
 template <typename... Args>
 struct TupleOfRefs{
@@ -62,6 +58,15 @@ struct TupleOfRefs{
 };
 
 
+template <typename T>
+struct is_shared_ptr{
+    static constexpr const bool value = false;
+};
+
+template <typename T>
+struct is_shared_ptr<std::shared_ptr<T>>{
+    static constexpr const bool value = true;
+};
 
 
 
@@ -76,7 +81,7 @@ struct TupleOfRefs{
 public: \
     virtual TOKENPASTE2(X,_)& operator= (TOKENPASTE2(X,_)& copy) {std::cout<<"= should not happen 1"<<std::endl;}; \
 }; \
-using X = TOKENPASTE2(X,_) *; \
+using X = std::shared_ptr<TOKENPASTE2(X,_)>; \
 template<> class ADT<MARKER+__LINE__-__COUNTER__>:public TOKENPASTE2(X,_){\
 public: \
     using BaseType = TOKENPASTE2(X,_); \
@@ -100,16 +105,17 @@ public: \
     virtual void copyFrom (const TupleType& input){ \
         auto new_values = transform_each(input,[&](auto x,auto i){ \
             using this_value_type = typename std::tuple_element<i.value,TupleType>::type; \
-            if constexpr(std::is_base_of<ADT_Base,typename std::remove_pointer<this_value_type>::type>::value){ \
-                using original_adt = typename std::remove_pointer<this_value_type>::type; \
-                original_adt* temp = (original_adt*) malloc(sizeof(TOKENPASTE2(X,_))); \
-                memcpy(temp,x,sizeof(TOKENPASTE2(X,_))); \
-                *temp = *x; \
-                return temp; \
+            if constexpr(is_shared_ptr<this_value_type>::value){ \
+                using element_type = typename this_value_type::element_type; \
+                if constexpr(std::is_base_of<ADT_Base,element_type>::value){ \
+                    using original_adt = element_type; \
+                    original_adt* temp = (original_adt*) malloc(sizeof(TOKENPASTE2(X,_))); \
+                    memcpy(temp,x,sizeof(TOKENPASTE2(X,_))); \
+                    *temp = *x; \
+                    return std::shared_ptr<original_adt>(temp); \
+                }\
             }\
-            else{ \
-                return x; \
-            } \
+            return x; \
         }); \
         clean(); \
         values_tuple = new TupleType(new_values); \
@@ -131,21 +137,21 @@ public: \
             cout<<"Type Error! because cast failed"<<endl;\
         }\
     } \
-    TOKENPASTE2(X,_)(RefsTupleType values){ \
+    TOKENPASTE2(X,_)(TupleType values){ \
         copyFrom(values);\
     } \
     virtual ~TOKENPASTE2(X,_)(){\
         clean(); \
     }\
 }; \
-using X = TOKENPASTE2(X,_)*;
+using X = std::shared_ptr<TOKENPASTE2(X,_)>;
 
 #define END_TYPE
 
-#define PATTERN(Cons,...) new TOKENPASTE2(Cons,_)(std::make_tuple(__VA_ARGS__))
+#define PATTERN(Cons,...) std::make_shared<TOKENPASTE2(Cons,_)>(std::make_tuple(__VA_ARGS__))
 
 #define MATCH(X,Cons,...) \
-if(Cons temp = dynamic_cast<Cons>(X) ){ \
+if(TOKENPASTE2(Cons,_)* temp = dynamic_cast<TOKENPASTE2(Cons,_)*>(X.get()) ){ \
 auto& [__VA_ARGS__] =  *(temp->values_tuple);
 
 #define END }

@@ -1,7 +1,10 @@
 # cADT
 Haskell Style ADT/Pattern-Matching for C++
 
-(Oops, hold on, have memory leaks right now)
+# Why?
+First of all, cause ADTs are COOL!
+Also Extremely useful when writing compilers...
+(but will be entirely useless after C++ supports lvariant... )
 
 # Installation
 This is a header-only library. Simply #include "cADT.h" will do.
@@ -31,5 +34,27 @@ int evaluate(Expr e){
     MATCH(e,Add,e1,e2)
         return evaluate(e1)+evaluate(e2);
     END
+}
+```
+
+And naturally:
+```C++
+int main() {
+    Expr e1 = PATTERN(Num,10);
+    Expr e2 = PATTERN(Num,20);
+    Expr e3 = PATTERN(Add,e1,e2);
+    Expr e4 = PATTERN(Add,PATTERN(Add,PATTERN(Num,1),PATTERN(Num,4)),PATTERN(Num,4));
+
+    // prints 10
+    cout<<evaluate(e1)<<endl;
+
+    // prints 30
+    cout<<evaluate(e3)<<endl;
+
+    //prints 9
+    cout<<evaluate(e4)<<endl;
+
+    cout<<"exit main"<<endl;
+    return 0;
 }
 ```

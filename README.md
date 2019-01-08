@@ -2,12 +2,12 @@
 Haskell Style ADT/Pattern-Matching for C++
 
 # Why?
-First of all, cause ADTs are COOL!
-Also Extremely useful when writing compilers...
+* cause ADTs are COOL!
+* extremely useful when writing compilers... <br />
 (but will be entirely useless after C++ supports lvariant... )
 
 # Installation
-This is a header-only library. Simply #include "cADT.h" will do.  
+This is a header-only library. Simply #include "cADT.h" will do.  <br />
 Must be compiled with C++17 or C++1z
 
 # Usage
